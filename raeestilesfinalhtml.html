@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raees Tile Fixers - Bill + Washroom Calculator</title>
+<style>
+*{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Urdu,Arial;}
+body{margin:0;background:#f4f7f5;padding:8px;}
+.card{max-width:700px;margin:auto;background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.08);overflow:hidden;border:1px solid #e5e7eb;}
+.header{background:linear-gradient(135deg,#0f5d2f,#1a8a46);color:#fff;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;}
+.header h1{margin:0;font-size:18px;} .header small{opacity:0.9;font-size:11px;display:block;margin-top:2px;}
+.mainnav{display:flex;gap:6px;padding:10px;background:#eef7f0;border-bottom:1px solid #dce8df}
+.mainnav button{flex:1;min-height:44px;border:1px solid #b7d5bf;border-radius:10px;background:#fff;color:#14532d;font-weight:800;font-size:12px}
+.mainnav button.active{background:#0f5d2f;color:#fff}
+.billmeta{display:flex;gap:8px;padding:12px 16px;background:#f6fbf7;border-bottom:1px solid #e5e7eb;flex-wrap:wrap;}
+.billmeta input{flex:1;min-width:130px;padding:12px 10px;border:1px solid #d1d5db;border-radius:10px;font-size:14px;}
+.tabs{display:flex;gap:6px;padding:10px 12px;background:#fff;border-bottom:1px solid #eee;}
+.tab{flex:1;padding:10px;border-radius:10px;border:1px solid #d1d5db;background:#f9fafb;font-weight:700;font-size:13px;cursor:pointer;text-align:center;}
+.tab.active{background:#0f5d2f;color:#fff;border-color:#0f5d2f;}
+.section{padding:12px 16px;}
+.row{display:grid;grid-template-columns:minmax(90px,1.5fr) minmax(48px,.7fr) minmax(48px,.7fr) minmax(48px,.6fr) 32px;gap:5px;margin-bottom:8px;align-items:center;}
+.row.wash{grid-template-columns:1.2fr 0.6fr 0.6fr 0.6fr 0.6fr 32px;}
+.row input{padding:9px 8px;border:1px solid #d1d5db;border-radius:9px;font-size:13px;width:100%;}
+.btn{padding:9px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:700;font-size:13px;}
+.btn-add{background:#e8f5e9;color:#0f5d2f;border:1px dashed #a5d6a7;width:100%;margin-top:6px;min-height:44px;}
+.btn-del{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;min-height:36px;}
+.ratebox{padding:12px 16px;background:#fafafa;border-top:1px solid #eee;display:grid;gap:8px;}
+.ratebox input{padding:10px;border:1px solid #d1d5db;border-radius:10px;}
+.invoice{margin:12px 16px;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;}
+.inv-head{padding:12px 16px;background:#fff;display:flex;justify-content:space-between;}
+.inv-body{padding:0 16px 8px 16px;font-size:13px;line-height:1.7;}
+.inv-total{background:#f6fbf7;padding:12px 16px;border-top:1px solid #e5e7eb;}
+.btn-wa{background:#0f5d2f;color:#fff;width:100%;padding:14px;border-radius:12px;font-size:15px;margin:8px 0;display:flex;gap:8px;justify-content:center;align-items:center;min-height:48px;border:none;cursor:pointer;}
+.btn-copy{background:#fff;border:1px solid #0f5d2f;color:#0f5d2f;width:100%;padding:11px;border-radius:12px;font-size:13px;min-height:44px;cursor:pointer;}
+.btn-contact,.btn-print,.btn-save{background:#e8f5e9;color:#0f5d2f;border:1px solid #a5d6a7;width:100%;padding:12px;border-radius:10px;font-weight:700;margin-top:7px;cursor:pointer;min-height:46px;touch-action:manipulation;}
+.btn-save{background:#0f5d2f;color:#fff;border-color:#0f5d2f;}
+.history-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;margin-bottom:8px;background:#fff;cursor:pointer;}
+.history-item:hover{background:#f0fdf4;border-color:#a5d6a7}
+.history-item b{font-size:14px} .history-item small{color:#6b7280;font-size:11px}
+.hist-actions{display:flex;gap:6px}
+.hist-actions button{padding:6px 10px;border-radius:8px;border:1px solid #ddd;background:#fff;font-size:11px;font-weight:700;cursor:pointer}
+.small{font-size:11px;color:#6b7280;}
+.calc-card{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:12px;margin-top:10px}
+.calc-card h3{margin:0 0 8px 0;font-size:14px;color:#0f5d2f}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.calc-grid input, .calc-grid select{padding:10px;border:1px solid #d1d5db;border-radius:10px;width:100%}
+.detail-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+.detail-table th,.detail-table td{border:1px solid #d1d5db;padding:8px;text-align:left}
+.detail-table th{background:#eef7f0}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;background:#0f5d2f;color:#fff;font-size:11px;font-weight:800}
+@media print{body{background:#fff;padding:0}.card{box-shadow:none;border:0;max-width:100%}.no-print{display:none!important}input{border:0!important;background:transparent!important}}
+</style>
+</head>
+<body>
+<div class="card">
+<div class="header">
+<div><h1>Raees Tile Fixers</h1><small>Arifwala • Floor | Wall | Washroom</small></div>
+<div style="text-align:right"><small>Bill No</small><div id="billNo" style="font-weight:800;font-size:13px"></div><small id="billDate"></small></div>
+</div>
+<div class="mainnav no-print">
+<button type="button" id="navBill" class="active">🧾 Bill</button>
+<button type="button" id="navHistory">📜 History</button>
+<button type="button" id="navTiles">📐 Calculator</button>
+</div>
+
+<!-- BILL PAGE -->
+<div id="pageBill">
+<div class="billmeta no-print">
+<input id="custName" placeholder="Customer Ka Naam">
+<input id="custMobile" placeholder="Mobile: 0300xxxxxxx" inputmode="tel">
+<button type="button" class="btn-contact" id="pickContactBtn">📱 Contacts Se Uthao</button>
+<div id="contactHelp" class="small" style="width:100%;display:none;background:#fff3cd;padding:8px;border-radius:8px;border:1px solid #ffe69c"></div>
+</div>
+<div class="tabs no-print">
+<button class="tab active" id="tab-floor">Floor</button>
+<button class="tab" id="tab-wall">Wall</button>
+<button class="tab" id="tab-wash">Washroom</button>
+</div>
+<div class="section" id="sec-floor"><div id="floorList"></div><button class="btn btn-add no-print" id="addFloorBtn">+ Floor Add</button></div>
+<div class="section" id="sec-wall" style="display:none"><div id="wallList"></div><button class="btn btn-add no-print" id="addWallBtn">+ Wall Add</button></div>
+<div class="section" id="sec-wash" style="display:none"><div id="washList"></div><button class="btn btn-add no-print" id="addWashBtn">+ Washroom Add</button></div>
+<div class="ratebox no-print">
+<label style="font-weight:700;font-size:13px">Rate Settings</label>
+<div style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sepRate"> <span style="font-size:13px">Alag alag rate</span></div>
+<div id="singleRateBox"><input id="singleRate" type="number" placeholder="Single Rate Rs (e.g. 25)"></div>
+<div id="multiRateBox" style="display:none;grid-template-columns:1fr 1fr 1fr;gap:6px">
+<input id="floorRate" type="number" placeholder="Floor Rate"><input id="wallRate" type="number" placeholder="Wall Rate"><input id="washRate" type="number" placeholder="Wash Rate">
+</div>
+</div>
+<div class="invoice" id="invoice">
+<div class="inv-head"><div><b>Bill Summary</b><div class="small" id="invCust"></div></div><div class="small" id="invMeta"></div></div>
+<div class="inv-body" id="invBody">Koi pemaish nahi</div>
+<div class="inv-total" id="invTotal"></div>
+</div>
+<div style="padding:0 16px 16px" class="no-print">
+<button class="btn-save" id="saveBtn">💾 Bill Save Karein (History Me)</button>
+<button class="btn-wa" id="waBtn">WhatsApp Pe Bhejein</button>
+<button class="btn-copy" id="copyBtn">Copy Bill</button>
+<button class="btn-print" id="printBtn">🖨️ Print / PDF Save Karein</button>
+<button class="btn-copy" id="newBtn" style="margin-top:7px;background:#f9fafb">🆕 Naya Bill</button>
+<div class="small" id="debugUrl" style="margin-top:6px;color:#0f5d2f;word-break:break-all"></div>
+</div>
+</div>
+
+<!-- HISTORY PAGE -->
+<div id="pageHistory" style="display:none;padding:12px 16px">
+<h2 style="margin:4px 0">📜 Bill History</h2>
+<div style="display:flex;gap:8px;margin-bottom:10px" class="no-print">
+<input id="searchHistory" placeholder="Naam ya mobile search karein..." style="flex:1;padding:10px;border:1px solid #d1d5db;border-radius:10px">
+<button id="clearAllHistory" style="padding:10px 12px;border-radius:10px;border:1px solid #fecaca;background:#fef2f2;color:#b91c1c;font-weight:700">Clear All</button>
+</div>
+<div id="historyList"></div>
+<div id="noHistory" class="small" style="text-align:center;padding:20px;display:none">Abhi koi bill save nahi hai. Bill bana kar Save button dabayein.</div>
+</div>
+
+<!-- TILE PAGE - UPDATED WITH WASHROOM DETAIL -->
+<div id="pageTiles" style="display:none;padding:14px">
+<h2>📐 Tile Calculator - Washroom Detail Ke Sath</h2>
+
+<div class="calc-card">
+<h3>1. Simple Area Calculator (Floor - Washroom k ilawa)</h3>
+<div class="calc-grid">
+<div><label class="small">Length ft</label><input id="roomL" type="number" value="12"></div>
+<div><label class="small">Width ft</label><input id="roomW" type="number" value="10"></div>
+<div><label class="small">Tile L (inch)</label><input id="tileL" type="number" value="24"></div>
+<div><label class="small">Tile W (inch)</label><input id="tileW" type="number" value="48"></div>
+</div>
+<div style="margin-top:8px;display:flex;gap:8px">
+<select id="tileUnit" style="flex:1;padding:10px;border-radius:10px;border:1px solid #d1d5db"><option value="ft">Feet</option><option value="in" selected>Inches</option><option value="cm">CM</option></select>
+<div style="flex:1"><label class="small">Wastage %</label><input id="wastePct" type="number" value="10"></div>
+</div>
+<div id="calcOut" style="background:#fff;border:1px solid #bbf7d0;border-radius:12px;padding:12px;margin-top:10px"></div>
+</div>
+
+<div class="calc-card" style="background:#fff7ed;border-color:#fed7aa">
+<h3>2. 🚿 Washroom Complete Calculator <span class="badge">NEW - Default 12x24</span></h3>
+<p class="small">Diwar + Farsh Mila Kar Total Tiles + Detail - Default 12x24</p>
+<div class="calc-grid">
+<div><label class="small">Washroom Length (ft)</label><input id="wL" type="number" value="7" placeholder="e.g. 7"></div>
+<div><label class="small">Washroom Width (ft)</label><input id="wW" type="number" value="5" placeholder="e.g. 5"></div>
+<div><label class="small">Height (ft) - Diwar ki</label><input id="wH" type="number" value="8" placeholder="e.g. 8 ft"></div>
+<div><label class="small">Wastage %</label><input id="wWaste" type="number" value="10"></div>
+</div>
+<div style="margin-top:10px" class="calc-grid">
+<div><label class="small">Farsh Tile Size (Inch) - Default 12x24</label>
+<div style="display:flex;gap:4px"><input id="wTileFloorL" type="number" value="12" style="flex:1"><input id="wTileFloorW" type="number" value="24" style="flex:1"></div></div>
+<div><label class="small">Diwar Tile Size (Inch) - Default 12x24</label>
+<div style="display:flex;gap:4px"><input id="wTileWallL" type="number" value="12" style="flex:1"><input id="wTileWallW" type="number" value="24" style="flex:1"></div></div>
+</div>
+
+<div id="washCalcOut"></div>
+</div>
+
+<button class="btn-print" id="printTileBtn" style="width:100%;margin-top:8px">🖨️ Print</button>
+</div>
+
+</div>
+
+<script>
+let now=new Date(); 
+function genBillNo(){ return 'RTF-'+String(now.getFullYear()).slice(-2)+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0')+'-'+Math.floor(1000+Math.random()*9000); }
+let billNo=genBillNo();
+document.getElementById('billNo').innerText=billNo;
+document.getElementById('billDate').innerText=new Date().toLocaleDateString('en-GB');
+let floorRows=[{id:'f1',name:'',l:'',w:''}]; let wallRows=[{id:'w1',name:'',l:'',h:''}]; let washRows=[{id:'ws1',name:'',l:'',w:'',h:'8'}];
+function uid(){return Math.random().toString(36).slice(2,6)}
+function setTab(t){ document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active')); document.getElementById('tab-'+t).classList.add('active'); document.getElementById('sec-floor').style.display=t==='floor'?'block':'none'; document.getElementById('sec-wall').style.display=t==='wall'?'block':'none'; document.getElementById('sec-wash').style.display=t==='wash'?'block':'none';}
+function addRow(type){ if(type==='floor') floorRows.push({id:uid(),name:'',l:'',w:''}); if(type==='wall') wallRows.push({id:uid(),name:'',l:'',h:''}); if(type==='wash') washRows.push({id:uid(),name:'',l:'',w:'',h:'8'}); render(); }
+function delRow(type,id){ if(type==='floor'&&floorRows.length>1) floorRows=floorRows.filter(r=>r.id!==id); if(type==='wall'&&wallRows.length>1) wallRows=wallRows.filter(r=>r.id!==id); if(type==='wash'&&washRows.length>1) washRows=washRows.filter(r=>r.id!==id); render();}
+function num(v){let n=parseFloat(v);return isNaN(n)||n<0?0:n}
+function fmt(n){return n.toLocaleString('en-PK',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function renderLists(){
+ document.getElementById('floorList').innerHTML=floorRows.map(r=>`<div class="row"><input placeholder="Area" value="${r.name}" oninput="update('floor','${r.id}','name',this.value)"><input placeholder="L" value="${r.l}" oninput="update('floor','${r.id}','l',this.value)"><input placeholder="W" value="${r.w}" oninput="update('floor','${r.id}','w',this.value)"><div style="font-size:12px;font-weight:700">${fmt(num(r.l)*num(r.w))}</div><button class="btn btn-del" onclick="delRow('floor','${r.id}')">×</button></div>`).join('');
+ document.getElementById('wallList').innerHTML=wallRows.map(r=>`<div class="row"><input placeholder="Wall" value="${r.name}" oninput="update('wall','${r.id}','name',this.value)"><input placeholder="L" value="${r.l}" oninput="update('wall','${r.id}','l',this.value)"><input placeholder="H" value="${r.h}" oninput="update('wall','${r.id}','h',this.value)"><div style="font-size:12px;font-weight:700">${fmt(num(r.l)*num(r.h))}</div><button class="btn btn-del" onclick="delRow('wall','${r.id}')">×</button></div>`).join('');
+ document.getElementById('washList').innerHTML=washRows.map(r=>{ let l=num(r.l),w=num(r.w),h=num(r.h); let wall=2*(l+w)*h; let fl=l*w; return `<div class="row wash"><input placeholder="Name" value="${r.name}" oninput="update('wash','${r.id}','name',this.value)"><input placeholder="L" value="${r.l}" oninput="update('wash','${r.id}','l',this.value)"><input placeholder="W" value="${r.w}" oninput="update('wash','${r.id}','w',this.value)"><input placeholder="H" value="${r.h}" oninput="update('wash','${r.id}','h',this.value)"><div style="font-size:10px"><b>${fmt(wall+fl)}</b></div><button class="btn btn-del" onclick="delRow('wash','${r.id}')">×</button></div>`}).join('');
+}
+function update(type,id,field,val){ let arr= type==='floor'?floorRows:type==='wall'?wallRows:washRows; let obj=arr.find(r=>r.id===id); if(obj) obj[field]=val; renderTotals(); }
+function renderTotals(){
+ let tf=floorRows.reduce((s,r)=>s+num(r.l)*num(r.w),0); let tw=wallRows.reduce((s,r)=>s+num(r.l)*num(r.h),0);
+ let tWalls=washRows.reduce((s,r)=>s+2*(num(r.l)+num(r.w))*num(r.h),0); let tWfloor=washRows.reduce((s,r)=>s+num(r.l)*num(r.w),0);
+ let tWash=tWalls+tWfloor; let gt=tf+tw+tWash;
+ let sep=document.getElementById('sepRate').checked;
+ document.getElementById('singleRateBox').style.display=sep?'none':'block'; document.getElementById('multiRateBox').style.display=sep?'grid':'none';
+ let sr=num(document.getElementById('singleRate').value); let fr=num(document.getElementById('floorRate').value); let wr=num(document.getElementById('wallRate').value); let washr=num(document.getElementById('washRate').value);
+ let totalAmt= sep? tf*fr+tw*wr+tWash*washr : gt*sr;
+ document.getElementById('invCust').innerText=(document.getElementById('custName').value||'N/A')+' '+(document.getElementById('custMobile').value||'');
+ document.getElementById('invMeta').innerText=billNo+' | '+new Date().toLocaleDateString('en-GB'); 
+ document.getElementById('invBody').innerHTML=`Floor: ${fmt(tf)}<br>Wall: ${fmt(tw)}<br>Wash: ${fmt(tWash)} <span class="small">(Diwar ${fmt(tWalls)} + Farsh ${fmt(tWfloor)})</span><br><b>Grand: ${fmt(gt)} sq ft</b>`;
+ document.getElementById('invTotal').innerHTML=`<div style="font-size:18px;font-weight:800;color:#0f5d2f">Total: Rs ${fmt(totalAmt)}</div>`;
+ window._calc={tf,tw,tWash,tWalls,tWfloor,gt,totalAmt,sr,fr,wr,washr,sep,totalBillText: buildTextRaw(totalAmt, tf, tw, tWash, tWalls, tWfloor, gt, sr, fr, wr, washr, sep)};
+}
+function render(){renderLists();renderTotals();}
+function buildTextRaw(totalAmt, tf, tw, tWash, tWalls, tWfloor, gt, sr, fr, wr, washr, sep){
+ let c=document.getElementById('custName').value||'Customer'; let m=document.getElementById('custMobile').value||''; 
+ return `Raees Tile Fixers\nBill No: ${billNo}\nDate: ${new Date().toLocaleDateString('en-GB')}\nCustomer: ${c} ${m}\nFloor: ${fmt(tf)} sqft\nWall: ${fmt(tw)} sqft\nWashroom Total: ${fmt(tWash)} sqft\n  - Diwar: ${fmt(tWalls)} sqft [2*(L+W)*H]\n  - Farsh: ${fmt(tWfloor)} sqft [L*W]\nGrand: ${fmt(gt)} sqft\nTotal: Rs ${fmt(totalAmt)}\n`;
+}
+function buildText(){ return window._calc ? window._calc.totalBillText : 'No data'; }
+function formatPak(s){ let d=(s||'').replace(/\D/g,''); if(!d) return ''; if(d.startsWith('0')) d='92'+d.substring(1); else if(d.startsWith('3')&&d.length==10) d='92'+d; return d; }
+function shareWA(){ let text=buildText(); let mob=formatPak(document.getElementById('custMobile').value); let url=mob&&mob.length>=12?`https://wa.me/${mob}?text=${encodeURIComponent(text)}`:`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`; window.open(url,'_blank'); }
+function copyText(){ if(navigator.clipboard) navigator.clipboard.writeText(buildText()).then(()=>alert('Copied!')); else alert(buildText()); }
+
+// CONTACTS
+async function pickContact(){
+ const help=document.getElementById('contactHelp'); help.style.display='none';
+ if(window.Android && typeof window.Android.pickContact==='function'){ window.Android.pickContact(); return; }
+ if(window.AndroidContacts && typeof window.AndroidContacts.pick==='function'){ window.AndroidContacts.pick(); return; }
+ if('contacts' in navigator && navigator.contacts && navigator.contacts.select){
+   try{
+     const contacts=await navigator.contacts.select(['name','tel'],{multiple:false});
+     if(contacts && contacts.length){ const c=contacts[0]; if(c.name&&c.name[0]) document.getElementById('custName').value=c.name[0]; if(c.tel&&c.tel[0]) document.getElementById('custMobile').value=c.tel[0].replace(/[^0-9+]/g,''); renderTotals(); return; }
+   }catch(e){ if(e.name!=='AbortError'){ help.innerHTML='❌ '+e.message; help.style.display='block'; } return; }
+ }
+ help.innerHTML='⚠️ Contacts permission ON karein HTML to APK settings me.'; help.style.display='block';
+}
+function onContactPicked(name, phone){ document.getElementById('custName').value=name||''; document.getElementById('custMobile').value=(phone||'').replace(/[^0-9+]/g,''); renderTotals(); }
+
+function printBill(){
+ renderTotals();
+ setTimeout(()=>{
+   if(window.Android && typeof window.Android.print==='function'){ window.Android.print(document.getElementById('invoice').outerHTML); return; }
+   if(window.AndroidPrint && typeof window.AndroidPrint.print==='function'){ window.AndroidPrint.print(document.documentElement.outerHTML); return; }
+   const old=document.title; document.title='Bill-'+billNo; window.print(); setTimeout(()=>document.title=old,500);
+ },200);
+}
+
+// HISTORY LOGIC
+const STORAGE_KEY='raees_bills_v2';
+function getBills(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); }catch(e){ return []; } }
+function saveBills(arr){ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
+function saveCurrentBill(){
+ let bills=getBills();
+ let data={
+   id:billNo,
+   billNo:billNo,
+   date:new Date().toISOString(),
+   custName:document.getElementById('custName').value,
+   custMobile:document.getElementById('custMobile').value,
+   floorRows:JSON.parse(JSON.stringify(floorRows)),
+   wallRows:JSON.parse(JSON.stringify(wallRows)),
+   washRows:JSON.parse(JSON.stringify(washRows)),
+   singleRate:document.getElementById('singleRate').value,
+   floorRate:document.getElementById('floorRate').value,
+   wallRate:document.getElementById('wallRate').value,
+   washRate:document.getElementById('washRate').value,
+   sepRate:document.getElementById('sepRate').checked,
+   calc:window._calc
+ };
+ let idx=bills.findIndex(b=>b.id===billNo);
+ if(idx>=0) bills[idx]=data; else bills.unshift(data);
+ saveBills(bills);
+ alert('Bill save ho gaya! History me dekhein.');
+ renderHistory();
+}
+function renderHistory(filter=''){
+ let bills=getBills();
+ let listEl=document.getElementById('historyList');
+ let noEl=document.getElementById('noHistory');
+ if(!bills.length){ listEl.innerHTML=''; noEl.style.display='block'; return; }
+ noEl.style.display='none';
+ let f=filter.toLowerCase();
+ let filtered=bills.filter(b=> !f || (b.custName||'').toLowerCase().includes(f) || (b.custMobile||'').includes(f) || (b.billNo||'').toLowerCase().includes(f) );
+ if(!filtered.length){ listEl.innerHTML='<div class="small" style="text-align:center;padding:20px">Koi bill nahi mila</div>'; return; }
+ listEl.innerHTML=filtered.map(b=>`
+ <div class="history-item" onclick="loadBill('${b.id}')">
+ <div><b>${b.custName||'N/A'}</b><br><small>${b.custMobile||''} • ${b.billNo}</small><br><small>${new Date(b.date).toLocaleString('en-GB')} • ${b.calc?b.calc.gt.toFixed(0):'-'} sqft • Rs ${b.calc?b.calc.totalAmt.toFixed(0):'-'}</small></div>
+ <div class="hist-actions">
+ <button onclick="event.stopPropagation(); loadBill('${b.id}')">Open</button>
+ <button onclick="event.stopPropagation(); deleteBill('${b.id}')" style="color:#b91c1c;border-color:#fecaca">Del</button>
+ </div>
+ </div>
+ `).join('');
+}
+function loadBill(id){
+ let bills=getBills();
+ let b=bills.find(x=>x.id===id);
+ if(!b) return;
+ billNo=b.billNo; document.getElementById('billNo').innerText=billNo;
+ document.getElementById('custName').value=b.custName||'';
+ document.getElementById('custMobile').value=b.custMobile||'';
+ floorRows=b.floorRows||[{id:'f1',name:'',l:'',w:''}];
+ wallRows=b.wallRows||[{id:'w1',name:'',l:'',h:''}];
+ washRows=b.washRows||[{id:'ws1',name:'',l:'',w:'',h:'8'}];
+ document.getElementById('singleRate').value=b.singleRate||'';
+ document.getElementById('floorRate').value=b.floorRate||'';
+ document.getElementById('wallRate').value=b.wallRate||'';
+ document.getElementById('washRate').value=b.washRate||'';
+ document.getElementById('sepRate').checked=!!b.sepRate;
+ showPage('bill');
+ render();
+}
+function deleteBill(id){
+ if(!confirm('Ye bill delete karna hai?')) return;
+ let bills=getBills().filter(b=>b.id!==id); saveBills(bills); renderHistory();
+}
+
+function newBill(){
+ billNo=genBillNo(); document.getElementById('billNo').innerText=billNo;
+ document.getElementById('custName').value=''; document.getElementById('custMobile').value='';
+ floorRows=[{id:'f1',name:'',l:'',w:''}]; wallRows=[{id:'w1',name:'',l:'',h:''}]; washRows=[{id:'ws1',name:'',l:'',w:'',h:'8'}];
+ document.getElementById('singleRate').value=''; document.getElementById('floorRate').value=''; document.getElementById('wallRate').value=''; document.getElementById('washRate').value='';
+ render();
+}
+
+function showPage(page){
+ document.getElementById('pageBill').style.display=page==='bill'?'block':'none';
+ document.getElementById('pageHistory').style.display=page==='history'?'block':'none';
+ document.getElementById('pageTiles').style.display=page==='tiles'?'block':'none';
+ document.getElementById('navBill').classList.toggle('active',page==='bill');
+ document.getElementById('navHistory').classList.toggle('active',page==='history');
+ document.getElementById('navTiles').classList.toggle('active',page==='tiles');
+ if(page==='history') renderHistory(document.getElementById('searchHistory').value);
+}
+
+// Events
+document.getElementById('navBill').addEventListener('click',()=>showPage('bill'));
+document.getElementById('navHistory').addEventListener('click',()=>showPage('history'));
+document.getElementById('navTiles').addEventListener('click',()=>showPage('tiles'));
+document.getElementById('tab-floor').addEventListener('click',()=>setTab('floor'));
+document.getElementById('tab-wall').addEventListener('click',()=>setTab('wall'));
+document.getElementById('tab-wash').addEventListener('click',()=>setTab('wash'));
+document.getElementById('pickContactBtn').addEventListener('click',pickContact);
+document.getElementById('printBtn').addEventListener('click',printBill);
+document.getElementById('copyBtn').addEventListener('click',copyText);
+document.getElementById('waBtn').addEventListener('click',shareWA);
+document.getElementById('saveBtn').addEventListener('click',saveCurrentBill);
+document.getElementById('newBtn').addEventListener('click',newBill);
+document.getElementById('addFloorBtn').addEventListener('click',()=>addRow('floor'));
+document.getElementById('addWallBtn').addEventListener('click',()=>addRow('wall'));
+document.getElementById('addWashBtn').addEventListener('click',()=>addRow('wash'));
+document.getElementById('sepRate').addEventListener('change',render);
+['singleRate','floorRate','wallRate','washRate','custName','custMobile'].forEach(id=>{document.getElementById(id).addEventListener('input',renderTotals);});
+document.getElementById('searchHistory').addEventListener('input',(e)=>renderHistory(e.target.value));
+document.getElementById('clearAllHistory').addEventListener('click',()=>{ if(confirm('Saari history delete karni hai?')){ localStorage.removeItem(STORAGE_KEY); renderHistory(); }});
+document.getElementById('printTileBtn').addEventListener('click',()=>{window.print();});
+
+function calcSimple(){ let L=num(document.getElementById('roomL').value),W=num(document.getElementById('roomW').value); let tl=num(document.getElementById('tileL').value),tw=num(document.getElementById('tileW').value); let unit=document.getElementById('tileUnit').value; if(unit==='in'){tl/=12;tw/=12} if(unit==='cm'){tl/=30.48;tw/=30.48} let area=L*W; let tArea=tl*tw; let base=tArea>0?Math.ceil(area/tArea):0; let pct=num(document.getElementById('wastePct').value); let tot=Math.ceil(base*(1+pct/100)); document.getElementById('calcOut').innerHTML=`Area: ${area.toFixed(2)} sqft<br>One Tile: ${tArea.toFixed(4)} sqft<br>Total Tiles: <b>${tot}</b>`; }
+
+// NEW WASHROOM CALCULATOR - DEFAULT 12x24
+function calcWashroom(){
+ let L=num(document.getElementById('wL').value);
+ let W=num(document.getElementById('wW').value);
+ let H=num(document.getElementById('wH').value);
+ let waste=num(document.getElementById('wWaste').value);
+ let ftL=num(document.getElementById('wTileFloorL').value);
+ let ftW=num(document.getElementById('wTileFloorW').value);
+ let wlL=num(document.getElementById('wTileWallL').value);
+ let wlW=num(document.getElementById('wTileWallW').value);
+ 
+ // Convert inch to ft
+ let ftTileArea = (ftL/12)*(ftW/12);
+ let wlTileArea = (wlL/12)*(wlW/12);
+ 
+ let floorArea = L*W;
+ let wallArea = 2*(L+W)*H;
+ let totalArea = floorArea + wallArea;
+ 
+ let floorTilesBase = ftTileArea>0 ? Math.ceil(floorArea/ftTileArea) : 0;
+ let wallTilesBase = wlTileArea>0 ? Math.ceil(wallArea/wlTileArea) : 0;
+ 
+ let floorTilesWithWaste = Math.ceil(floorTilesBase*(1+waste/100));
+ let wallTilesWithWaste = Math.ceil(wallTilesBase*(1+waste/100));
+ 
+ let totalTilesBase = floorTilesBase + wallTilesBase;
+ let totalTilesWithWaste = floorTilesWithWaste + wallTilesWithWaste;
+ 
+ document.getElementById('washCalcOut').innerHTML = `
+ <table class="detail-table">
+ <tr><th>Detail</th><th>Sqft</th><th>Formula</th></tr>
+ <tr><td>🚿 Farsh (Floor)</td><td><b>${floorArea.toFixed(2)} sqft</b></td><td>L × W = ${L}×${W}</td></tr>
+ <tr><td>🧱 Diwar (4 Walls)</td><td><b>${wallArea.toFixed(2)} sqft</b></td><td>2×(L+W)×H = 2×(${L}+${W})×${H}</td></tr>
+ <tr><td style="background:#f0fdf4"><b>Total Washroom</b></td><td style="background:#f0fdf4"><b>${totalArea.toFixed(2)} sqft</b></td><td>Farsh + Diwar</td></tr>
+ </table>
+ 
+ <table class="detail-table" style="margin-top:12px">
+ <tr><th>Tiles Detail</th><th>Base Tiles</th><th>+${waste}% Wastage</th></tr>
+ <tr><td>Farsh Tile ${ftL}"×${ftW}" (${ftTileArea.toFixed(2)} sqft/tile)</td><td>${floorTilesBase} tiles</td><td><b>${floorTilesWithWaste} tiles</b></td></tr>
+ <tr><td>Diwar Tile ${wlL}"×${wlW}" (${wlTileArea.toFixed(2)} sqft/tile)</td><td>${wallTilesBase} tiles</td><td><b>${wallTilesWithWaste} tiles</b></td></tr>
+ <tr style="background:#0f5d2f;color:#fff"><td><b>TOTAL TILES LAGE GI</b></td><td><b>${totalTilesBase}</b></td><td><b>${totalTilesWithWaste} tiles</b></td></tr>
+ </table>
+ <div style="margin-top:10px;padding:10px;background:#fff;border-radius:8px;font-size:12px">
+ ✅ <b>Misal:</b> Agar washroom ${L}ft x ${W}ft hai aur height ${H}ft hai to:<br>
+ - Farsh: ${floorArea.toFixed(2)} sqft<br>
+ - Diwar: ${wallArea.toFixed(2)} sqft<br>
+ - Total Tiles wastage ke sath: <b>${totalTilesWithWaste} tiles</b> (Farsh ${floorTilesWithWaste} + Diwar ${wallTilesWithWaste})
+ </div>
+ `;
+}
+
+['roomL','roomW','tileL','tileW','wastePct'].forEach(id=>document.getElementById(id).addEventListener('input',calcSimple)); document.getElementById('tileUnit').addEventListener('change',calcSimple);
+['wL','wW','wH','wWaste','wTileFloorL','wTileFloorW','wTileWallL','wTileWallW'].forEach(id=>document.getElementById(id).addEventListener('input',calcWashroom));
+
+render(); calcSimple(); calcWashroom(); renderHistory();
+</script>
+</body>
+</html>
